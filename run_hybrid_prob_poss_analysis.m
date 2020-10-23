@@ -44,7 +44,7 @@ poss_settings.use_surrogate_p_box = use_surrogate_p_box;
 %% Run hybrid probabilistic-possibilistic uncertainty analysis
 
 % Run analysis
-[results_poss_distr, results_p_box] = hybrid_prob_poss_analysis(poss_settings,parameters_prob,parameters_poss,socioeconomic_analysis_options);
+[results_poss_distr, results_p_box, inputs_poss_sensitivity] = hybrid_prob_poss_analysis(poss_settings,parameters_prob,parameters_poss,socioeconomic_analysis_options);
 
 % Unpacking results for possibility distributions
 alpha_vec_poss = results_poss_distr.alpha_vec_poss;
@@ -183,3 +183,9 @@ set(leg,'Color','none')
 set(leg,'Interpreter','LaTeX')
 set(leg,'FontSize',FontSizeLeg)
 
+%% Run sensitivity analysis
+
+% Do a mapping of the epistemic uncertainty space and calculate the break-even
+% values for the uncertain parameters for which the costs of risk-reducing 
+% measures balance the benefits
+x_break_even = poss_sensitivity_analysis(inputs_poss_sensitivity);

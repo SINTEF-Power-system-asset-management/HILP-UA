@@ -1,4 +1,4 @@
-# HILP-UA: HILP Uncertainty Analysis
+# HILP-UA: HILP event Uncertainty Analysis
 
 MATLAB code for hybrid probabilistic-possibilistic uncertainty analysis 
 applied to socio-economic cost-benefit analysis for power system development

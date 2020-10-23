@@ -1,7 +1,7 @@
-function [results_poss_distr, results_p_box] = hybrid_prob_poss_analysis(poss_settings,parameters_prob,parameters_poss,socioeconomic_analysis_options)
+function [results_poss_distr, results_p_box, inputs_poss_sensitivity] = hybrid_prob_poss_analysis(poss_settings,parameters_prob,parameters_poss,socioeconomic_analysis_options)
 % HYBRID_PROB_POSS_ANALYSIS Performs hybrid probabilistic-possibilistic uncertainty analysis
 %
-%   [RESULTS_POSS_DISTR, RESULTS_P_BOX] = HYBRID_PROB_POSS_ANALYSIS(...
+%   [RESULTS_POSS_DISTR, RESULTS_P_BOX,INPUTS_POSS_SENSITIVITY] = HYBRID_PROB_POSS_ANALYSIS(...
 %       POSS_SETTINGS,PARAMETERS_PROB,PARAMETERS_POSS,SOCIOECONOMIC_ANALYSIS_OPTIONS)
 %   performs a hybrid probabilistic-possibilistic uncertainty analysis
 %   applied to a socio-economic cost-benefit analysis of power system
@@ -30,7 +30,20 @@ function [results_poss_distr, results_p_box] = hybrid_prob_poss_analysis(poss_se
 %
 %   SOCIOECONOMIC_ANALYSIS_OPTIONS:
 %   Settings and parameters for the socio-economic cost-benefit analysis
-
+%
+% OUTPUTS:
+%   RESULTS_POSS_DISTR:
+%   Struct with the result arrays necessary to plot possibility distributions.
+%
+%   RESULTS_P_BOX:
+%   Struct with the result arrays necessary to plot p-boxes.
+%
+%   INPUTS_POSS_SENSITIVITY:
+%   Struct with (intermediate) results arrays that are necessary as inputs
+%   for the possibilistic sensitivity analysis for the net benefits of
+%   risk-reducing measures.
+%
+% See also: RUN_HYBRID_PROB_POSS_ANALYSIS.M, POSS_SENSITIVITY_ANALYSIS.M
 
 % Unpack settings for the (outer loop of the) hybrid probabilistic-
 % possibilistic uncertainty analysis
@@ -162,6 +175,9 @@ for i_cut = 1:n_cuts
     x_upper = x_poss_alpha(n_points - i_cut + 1,:);
     idx_sample_in_cut(:,i_cut) = all(x_poss_sample >= x_lower & x_poss_sample <= x_upper,2);
 end
+
+% Which samples are vertex samples (and not latin hypercube samples)
+idx_samples_vertex = [true(n_samples-n_lh_samples,1); false(n_lh_samples,1)];
 
 %% Do socioeconomic analysis
 
@@ -358,7 +374,8 @@ cdf_values_CB_1 = construct_p_box(cdf_values,use_surrogate_p_box,x_poss_sample,I
 
 %% Packaging results
 
-% Unpacking results for possibility distributions
+% Packaging results for possibility distributions
+results_poss_distr = struct();
 results_poss_distr.alpha_vec_poss = alpha_vec_poss;
 results_poss_distr.Mean_rel_benefits_vec = Mean_rel_benefits_vec;
 results_poss_distr.Mean_rel_benefits_vec_vertex = Mean_rel_benefits_vec_vertex;
@@ -368,9 +385,19 @@ results_poss_distr.Mean_CB_1_vec = Mean_CB_1_vec;
 results_poss_distr.Mean_CB_1_vec_vertex = Mean_CB_1_vec_vertex;
 results_poss_distr.Prob_positive_net_benefit_vec = Prob_positive_net_benefit_vec;
 
-% Unpacking results for p-boxes
+% Packaging results for p-boxes
+results_p_box = struct();
 results_p_box.bin_edges_Mean_rel_benefits = bin_edges_Net_benefits;
 results_p_box.bin_edges_CB = bin_edges_CB;
 results_p_box.cdf_values_CB_0 = cdf_values_CB_0;
 results_p_box.cdf_values_CB_1 = cdf_values_CB_1;
 results_p_box.cdf_values_Net_benefits = cdf_values_Net_benefits;
+
+% Packaging results for possibilistic sensitivity analysis for net benefits
+% of risk-reducing measures
+inputs_poss_sensitivity = struct();
+inputs_poss_sensitivity.Mean_net_benefits_samples = Mean_net_benefits_samples;
+inputs_poss_sensitivity.x_poss_sample = x_poss_sample;
+inputs_poss_sensitivity.idx_samples_vertex = idx_samples_vertex;
+inputs_poss_sensitivity.x_best_guess = x_best_guess;
+
